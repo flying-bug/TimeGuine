@@ -7,9 +7,9 @@ class FloatingAppIcon {
   static double _lastY = 100.0;
 
   /// Gọi hàm này để hiển thị icon trôi nổi trên toàn bộ ứng dụng
-  static void show(BuildContext context, {required String imageAssetPath, String message = ''}) {
+  static void show(BuildContext context, {required String imageAssetPath, String message = '', VoidCallback? onTap}) {
     if (_overlayEntry != null) {
-      _key.currentState?.updateMessage(message);
+      _key.currentState?.updateMessage(message, onTap: onTap);
       return; 
     }
 
@@ -18,6 +18,7 @@ class FloatingAppIcon {
         key: _key,
         imageAssetPath: imageAssetPath,
         message: message,
+        onTap: onTap,
       ),
     );
 
@@ -34,11 +35,13 @@ class FloatingAppIcon {
 class _FloatingWidget extends StatefulWidget {
   final String imageAssetPath;
   final String message;
+  final VoidCallback? onTap;
 
   const _FloatingWidget({
     Key? key,
     required this.imageAssetPath,
     required this.message,
+    this.onTap,
   }) : super(key: key);
 
   @override
@@ -51,6 +54,7 @@ class _FloatingWidgetState extends State<_FloatingWidget> {
   late double y;
   bool _showMessage = true;
   late String _currentMessage;
+  VoidCallback? _currentOnTap;
 
   @override
   void initState() {
@@ -58,12 +62,14 @@ class _FloatingWidgetState extends State<_FloatingWidget> {
     x = FloatingAppIcon._lastX;
     y = FloatingAppIcon._lastY;
     _currentMessage = widget.message;
+    _currentOnTap = widget.onTap;
     _startTimer();
   }
 
-  void updateMessage(String newMessage) {
+  void updateMessage(String newMessage, {VoidCallback? onTap}) {
     setState(() {
       _currentMessage = newMessage;
+      _currentOnTap = onTap;
       _showMessage = true;
     });
     _startTimer();
@@ -83,6 +89,107 @@ class _FloatingWidgetState extends State<_FloatingWidget> {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
+    final bool isLeftHalf = x < screenSize.width / 2;
+
+    // Bong bóng thông báo (giống MBBank)
+    final textBubbleWidget = AnimatedSize(
+      duration: const Duration(milliseconds: 300),
+      alignment: isLeftHalf ? Alignment.bottomLeft : Alignment.bottomRight,
+      curve: Curves.easeInOut,
+      child: (_showMessage && _currentMessage.isNotEmpty)
+          ? Container(
+              margin: EdgeInsets.only(
+                bottom: 15,
+                left: isLeftHalf ? 8 : 0,
+                right: isLeftHalf ? 0 : 8,
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              constraints: const BoxConstraints(maxWidth: 160),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: const Radius.circular(16),
+                  topRight: const Radius.circular(16),
+                  bottomLeft: Radius.circular(isLeftHalf ? 0 : 16),
+                  bottomRight: Radius.circular(isLeftHalf ? 16 : 0),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.15),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Text(
+                _currentMessage,
+                style: const TextStyle(
+                  color: Colors.black87,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  height: 1.3,
+                ),
+              ),
+            )
+          : const SizedBox.shrink(),
+    );
+
+    // App Icon trôi nổi kèm nút đóng (dấu tick)
+    final iconWidget = Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          width: 55,
+          height: 55,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.white, width: 2.5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+            // Nền trắng phòng trường hợp ảnh trong suốt
+            color: Colors.white, 
+            image: DecorationImage(
+              image: AssetImage(widget.imageAssetPath),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        // Nút tắt hình dấu X đỏ
+        Positioned(
+          top: -4,
+          right: -4,
+          child: GestureDetector(
+            onTap: () {
+              FloatingAppIcon.hide();
+            },
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: const BoxDecoration(
+                color: Colors.redAccent,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 4,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.close_rounded,
+                color: Colors.white,
+                size: 14,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
 
     return Positioned(
       left: x,
@@ -100,76 +207,20 @@ class _FloatingWidgetState extends State<_FloatingWidget> {
             });
           },
           onTap: () {
-            // Bấm vào icon để bật/tắt hiển thị bong bóng chat
-            setState(() {
-              _showMessage = !_showMessage;
-            });
+            if (_currentOnTap != null) {
+              _currentOnTap!();
+            } else {
+              // Bấm vào icon để bật/tắt hiển thị bong bóng chat
+              setState(() {
+                _showMessage = !_showMessage;
+              });
+            }
           },
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              // Bong bóng thông báo (giống MBBank)
-              AnimatedSize(
-                duration: const Duration(milliseconds: 300),
-                alignment: Alignment.bottomRight,
-                curve: Curves.easeInOut,
-                child: (_showMessage && _currentMessage.isNotEmpty)
-                    ? Container(
-                        margin: const EdgeInsets.only(bottom: 15, right: 8),
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                        constraints: const BoxConstraints(maxWidth: 160),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(16),
-                            topRight: Radius.circular(16),
-                            bottomLeft: Radius.circular(16),
-                            bottomRight: Radius.circular(0), // Chỉ đuôi về phía icon
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.15),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Text(
-                          _currentMessage,
-                          style: const TextStyle(
-                            color: Colors.black87,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            height: 1.3,
-                          ),
-                        ),
-                      )
-                    : const SizedBox.shrink(),
-              ),
-
-              // App Icon trôi nổi
-              Container(
-                width: 55,
-                height: 55,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 2.5),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                  // Nền trắng phòng trường hợp ảnh trong suốt
-                  color: Colors.white, 
-                  image: DecorationImage(
-                    image: AssetImage(widget.imageAssetPath),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-            ],
+            children: isLeftHalf 
+                ? [iconWidget, textBubbleWidget]
+                : [textBubbleWidget, iconWidget],
           ),
         ),
       ),

@@ -70,9 +70,14 @@ class GeminiAIService implements IAIService {
 
       Yêu cầu:
       1. Nếu là mục tiêu lớn, hãy chia nhỏ thành các công việc theo từng ngày.
-      2. NẾU THỜI TIẾT XẤU (Mưa, bão...), KHÔNG xếp các việc ngoài trời, GỢI Ý đổi sang các việc trong nhà. NẾU THỜI TIẾT ĐẸP, có thể gợi ý hoạt động ngoài trời.
-      3. Nếu lịch hiện tại quá dày, hãy đưa ra lời khuyên tránh quá tải (burnout) trong trường "advice", và dãn việc ra.
-      4. Tránh xếp lịch trùng với những việc đã có.
+      2. NẾU THỜI TIẾT XẤU NHƯ BÃO, MƯA TO HOẶC GIÔNG MẠNH, hãy tránh xếp các việc ngoài trời. Nếu chỉ là "Mưa giông rải rác" hoặc "Mưa rào rải rác", hãy linh hoạt sắp xếp việc ngoài trời vào các khung giờ phù hợp (ví dụ tránh chiều muộn), hoặc gợi ý các hoạt động trong nhà. Nếu thời tiết nắng nóng (trên 35°C), khuyên người dùng hạn chế ra ngoài lúc trưa/chiều và nên tập thể dục trong nhà hoặc sáng sớm/chiều mát.
+      3. Đối với cảnh báo thời tiết trong trường "advice":
+         - CHỈ đưa ra cảnh báo thời tiết và nhắc nhở mang theo vật dụng nếu trong danh sách "tasks" đề xuất có công việc diễn ra NGOÀI TRỜI (outdoor).
+         - Nếu công việc ở ngoài trời và dự báo có mưa/giông: Nhắc nhở người dùng mang theo ô (dù), áo mưa.
+         - Nếu công việc ở ngoài trời và dự báo có nắng to/nắng nóng: Nhắc nhở người dùng mang theo kem chống nắng, mũ (nón), kính râm, hoặc nước uống để bảo vệ sức khỏe.
+         - Nếu tất cả công việc đề xuất đều ở TRONG NHÀ (indoor) hoặc không bị ảnh hưởng bởi thời tiết, KHÔNG đưa ra cảnh báo thời tiết trong trường "advice" (để trống hoặc chỉ đưa ra cảnh báo quá tải nếu lịch quá dày).
+      4. Nếu lịch hiện tại quá dày, hãy đưa ra lời khuyên tránh quá tải (burnout) trong trường "advice", và dãn việc ra.
+      5. Tránh xếp lịch trùng với những việc đã có.
 
       Trả về ĐÚNG định dạng JSON sau (không chứa text dư thừa):
       {

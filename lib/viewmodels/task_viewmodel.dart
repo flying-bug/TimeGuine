@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../models/task_model.dart';
+import '../models/ai_response.dart';
 import '../repositories/task_repository.dart';
 import '../services/ai_service.dart';
 import '../services/notification_service.dart';
@@ -98,7 +99,7 @@ class TaskViewModel extends ChangeNotifier {
     _loadTasksForSelectedDate();
   }
 
-  Future<void> generateTasksWithAI(String prompt) async {
+  Future<AIResponse?> generateTasksWithAI(String prompt) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -106,10 +107,24 @@ class TaskViewModel extends ChangeNotifier {
     try {
       final allTasks = await _repository.getAllTasks();
       final aiResponse = await _aiService.generateTasksFromPrompt(prompt, allTasks);
-      if (aiResponse.advice.isNotEmpty) {
-        _aiAdvice = aiResponse.advice;
+      return aiResponse;
+    } catch (e) {
+      _errorMessage = e.toString();
+      return null;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> addAIGeneratedTasks(List<TaskModel> tasks, {String? advice}) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      if (advice != null && advice.isNotEmpty) {
+        _aiAdvice = advice;
       }
-      for (var task in aiResponse.tasks) {
+      for (var task in tasks) {
         await _repository.addTask(task);
         
         int hour = 8;
@@ -151,8 +166,8 @@ class TaskViewModel extends ChangeNotifier {
     List<double> totalPerDay = List.filled(7, 0);
 
     for (int i = 0; i < 7; i++) {
-      // Bắt đầu từ 6 ngày trước đến hôm nay
-      final day = now.subtract(Duration(days: 6 - i));
+      // Bắt đầu từ hôm nay đến 6 ngày tiếp theo trong tương lai
+      final day = now.add(Duration(days: i));
       for (var task in allTasks) {
         if (_isSameDay(task.date, day)) {
           totalTasks++;

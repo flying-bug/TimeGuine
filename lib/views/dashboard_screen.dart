@@ -121,14 +121,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: Column(
                 children: [
                   const Text('Thành Tích Mỗi Ngày', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.green)),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 24),
                   SizedBox(
                     height: 250,
                     child: BarChart(
                       BarChartData(
                         alignment: BarChartAlignment.spaceAround,
                         maxY: _getMaxY(totalPerDay),
-                        barTouchData: BarTouchData(enabled: false),
+                        barTouchData: BarTouchData(
+                          enabled: true,
+                          handleBuiltInTouches: true,
+                          touchTooltipData: BarTouchTooltipData(
+                            getTooltipColor: (group) => Colors.orangeAccent,
+                            tooltipPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            tooltipMargin: 8,
+                            getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                              final dayIndex = group.x;
+                              final comp = completedPerDay[dayIndex].toInt();
+                              final tot = totalPerDay[dayIndex].toInt();
+                              return BarTooltipItem(
+                                '$comp/$tot Xong',
+                                const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
                         titlesData: FlTitlesData(
                           show: true,
                           bottomTitles: AxisTitles(
@@ -148,6 +169,124 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildLegendItem(Colors.greenAccent, 'Xong hết'),
+                      const SizedBox(width: 12),
+                      _buildLegendItem(Colors.pinkAccent, 'Chưa xong hết'),
+                      const SizedBox(width: 12),
+                      _buildLegendItem(Colors.grey.shade200, 'Tổng số việc'),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 30),
+
+            // Chi tiết từng ngày
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.blueGrey.withOpacity(0.1),
+                    blurRadius: 15,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Chi Tiết Nhiệm Vụ', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.blueGrey)),
+                  const SizedBox(height: 16),
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: 7,
+                    separatorBuilder: (context, index) => const Divider(height: 1),
+                    itemBuilder: (context, index) {
+                      final dayIndex = index;
+                      final now = DateTime.now();
+                      final day = now.add(Duration(days: dayIndex));
+                      final comp = completedPerDay[dayIndex].toInt();
+                      final tot = totalPerDay[dayIndex].toInt();
+                      
+                      String dayStr = DateFormat('dd/MM').format(day);
+                      if (dayIndex == 0) {
+                        dayStr = "Hôm nay\n($dayStr)";
+                      } else if (dayIndex == 1) {
+                        dayStr = "Ngày mai\n($dayStr)";
+                      } else {
+                        dayStr = "${_getVNWeekday(day.weekday)}\n($dayStr)";
+                      }
+
+                      final double rate = tot > 0 ? (comp / tot) : 0;
+                      
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12.0),
+                        child: Row(
+                          children: [
+                            Icon(
+                              tot == 0 
+                                ? Icons.calendar_today_rounded 
+                                : (comp == tot ? Icons.check_circle_rounded : Icons.pending_rounded),
+                              color: tot == 0 
+                                ? Colors.grey 
+                                : (comp == tot ? Colors.greenAccent : Colors.orangeAccent),
+                              size: 28,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    dayStr,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 16,
+                                      color: dayIndex == 0 ? Colors.orange : Colors.black87,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    tot == 0 
+                                        ? 'Không có nhiệm vụ' 
+                                        : 'Hoàn thành $comp trên $tot nhiệm vụ',
+                                    style: TextStyle(
+                                      color: tot == 0 ? Colors.grey : Colors.black54,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            if (tot > 0)
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: comp == tot ? Colors.green.shade50 : Colors.pink.shade50,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  '${(rate * 100).toStringAsFixed(0)}%',
+                                  style: TextStyle(
+                                    color: comp == tot ? Colors.green : Colors.pinkAccent,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -158,6 +297,47 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   // --- Helpers cho Biểu Đồ ---
+
+  Widget _buildLegendItem(Color color, String text) {
+    return Row(
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          text,
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black54),
+        ),
+      ],
+    );
+  }
+
+  String _getVNWeekday(int weekday) {
+    switch (weekday) {
+      case DateTime.monday:
+        return 'Thứ Hai';
+      case DateTime.tuesday:
+        return 'Thứ Ba';
+      case DateTime.wednesday:
+        return 'Thứ Tư';
+      case DateTime.thursday:
+        return 'Thứ Năm';
+      case DateTime.friday:
+        return 'Thứ Sáu';
+      case DateTime.saturday:
+        return 'Thứ Bảy';
+      case DateTime.sunday:
+        return 'Chủ Nhật';
+      default:
+        return '';
+    }
+  }
 
   List<PieChartSectionData> _getPieSections(int completed, int notCompleted) {
     if (completed == 0 && notCompleted == 0) {
@@ -199,14 +379,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _getBottomTitles(double value, TitleMeta meta) {
-    const style = TextStyle(color: Colors.blueGrey, fontWeight: FontWeight.w900, fontSize: 13);
+    final isToday = value.toInt() == 0;
+    final style = TextStyle(
+      color: isToday ? Colors.orange : Colors.blueGrey,
+      fontWeight: FontWeight.w900,
+      fontSize: 12,
+    );
     
-    // Tính ngày lùi lại dựa theo index (0 là 6 ngày trước, 6 là hôm nay)
+    // Tính ngày tiến lên trong tương lai dựa theo index (0 là hôm nay, 6 là 6 ngày sau)
     final now = DateTime.now();
-    final day = now.subtract(Duration(days: 6 - value.toInt()));
+    final day = now.add(Duration(days: value.toInt()));
     
-    String text = DateFormat('dd/MM').format(day);
-    if (value.toInt() == 6) text = "Hôm nay";
+    final text = DateFormat('dd/MM').format(day);
 
     return SideTitleWidget(
       meta: meta,
@@ -223,17 +407,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
           x: i,
           barRods: [
             BarChartRodData(
-              toY: total[i], // Cột xám mờ hiện tổng task
-              color: Colors.grey[200],
-              width: 20,
-              borderRadius: BorderRadius.circular(10),
-              backDrawRodData: BackgroundBarChartRodData(show: false),
-            ),
-            BarChartRodData(
-              toY: completed[i], // Cột màu xanh/hồng đè lên hiện số đã làm
+              toY: completed[i],
               color: completed[i] == total[i] && total[i] > 0 ? Colors.greenAccent : Colors.pinkAccent,
               width: 20,
               borderRadius: BorderRadius.circular(10),
+              backDrawRodData: BackgroundBarChartRodData(
+                show: true,
+                toY: total[i] == 0 ? 0.05 : total[i],
+                color: Colors.grey[200],
+              ),
             ),
           ],
           showingTooltipIndicators: [],

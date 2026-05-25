@@ -1,4 +1,4 @@
-import 'dart:convert';
+nắng import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 
@@ -91,8 +91,10 @@ class WeatherService {
     if (code == 45 || code == 48) return 'Sương mù';
     if (code >= 51 && code <= 67) return 'Có mưa nhẹ / Mưa rào';
     if (code >= 71 && code <= 77) return 'Tuyết rơi';
-    if (code >= 80 && code <= 82) return 'Mưa to';
-    if (code >= 95 && code <= 99) return 'Giông bão';
+    if (code == 80 || code == 81) return 'Mưa rào rải rác';
+    if (code == 82) return 'Mưa to';
+    if (code == 95) return 'Mưa giông rải rác';
+    if (code >= 96 && code <= 99) return 'Mưa giông mạnh / Bão';
     return 'Thời tiết thất thường';
   }
 }
