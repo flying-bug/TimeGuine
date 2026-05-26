@@ -399,7 +399,31 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                   trailing: IconButton(
                                     icon: const Icon(Icons.delete_forever_rounded, color: Colors.redAccent, size: 30),
                                     onPressed: () {
-                                      viewModel.deleteTask(task.id);
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: const Text('Xóa công việc', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.redAccent)),
+                                          content: const Text('Bé có chắc chắn muốn xóa công việc này không?'),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () => Navigator.pop(context),
+                                              child: const Text('Không', style: TextStyle(color: Colors.blueGrey)),
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: () {
+                                                viewModel.deleteTask(task.id);
+                                                Navigator.pop(context);
+                                              },
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Colors.redAccent,
+                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                              ),
+                                              child: const Text('Xóa', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                            ),
+                                          ],
+                                        ),
+                                      );
                                     },
                                   ),
                                 ),
