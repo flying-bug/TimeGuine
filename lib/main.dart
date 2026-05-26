@@ -20,7 +20,7 @@ void main() async {
   final ITaskRepository taskRepository = InMemoryTaskRepository();
   
   // Dễ dàng thay đổi Mock AIService thành GeminiAIService mà không cần sửa code ViewModel hay UI
-  final IAIService aiService = GeminiAIService(apiKey: 'AIzaSyAmqWYVGNzpQ7R3BWsBgNx4DIbdloJ-IiM');
+  final IAIService aiService = GeminiAIService(apiKey: '[GCP_API_KEY]');
   // final IAIService aiService = MockAIService();
 
   runApp(
