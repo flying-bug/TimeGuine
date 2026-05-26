@@ -419,8 +419,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
           heroTag: 'aiGenieFAB',
           onPressed: () => _showAIInputDialog(context, viewModel),
           backgroundColor: Colors.amberAccent,
-          icon: const Icon(Icons.auto_awesome, color: Colors.white, size: 28),
-          label: const Text('AI Thần Kỳ', style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontSize: 18)),
+          icon: const Text('🧞', style: TextStyle(fontSize: 24)),
+          label: const Text('Thần Đèn', style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontSize: 18)),
         ),
       ),
     );
@@ -474,7 +474,17 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 width: double.infinity,
                 child: FilledButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Đóng', style: TextStyle(fontSi  void _showAddTaskDialog(BuildContext context, TaskViewModel viewModel) {
+                  child: const Text('Đóng', style: TextStyle(fontSize: 16)),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showAddTaskDialog(BuildContext context, TaskViewModel viewModel) {
     final TextEditingController timeController = TextEditingController();
     final TextEditingController titleController = TextEditingController();
     final TextEditingController detailsController = TextEditingController();
@@ -509,16 +519,32 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         ),
                       ),
                       width: double.infinity,
-                      child: const Column(
+                      child: Stack(
+                        clipBehavior: Clip.none,
                         children: [
-                          Icon(Icons.add_task_rounded, color: Colors.white, size: 40),
-                          SizedBox(height: 8),
-                          Text(
-                            'Thêm công việc mới 📝',
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w900,
-                              color: Colors.white,
+                          const Align(
+                            alignment: Alignment.center,
+                            child: Column(
+                              children: [
+                                Icon(Icons.add_task_rounded, color: Colors.white, size: 40),
+                                SizedBox(height: 8),
+                                Text(
+                                  'Thêm công việc mới 📝',
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w900,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Positioned(
+                            top: -16,
+                            right: -8,
+                            child: IconButton(
+                              icon: const Icon(Icons.close, color: Colors.white),
+                              onPressed: () => Navigator.pop(context),
                             ),
                           ),
                         ],
@@ -627,25 +653,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           const SizedBox(height: 24),
                           
                           // Hàng nút hành động
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                style: TextButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                                ),
-                                child: Text(
-                                  'Hủy bỏ',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: isDark ? Colors.white70 : Colors.grey.shade600,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Container(
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: Container(
                                 decoration: BoxDecoration(
                                   gradient: const LinearGradient(
                                     colors: [Colors.pinkAccent, Colors.orangeAccent],
@@ -691,7 +701,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                   ),
                                 ),
                               ),
-                            ],
                           )
                         ],
                       ),
@@ -743,27 +752,35 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       width: double.infinity,
                       child: Row(
                         children: [
-                          const Icon(Icons.auto_awesome, color: Colors.white, size: 36),
+                          const Text('🧞', style: TextStyle(fontSize: 36)),
                           const SizedBox(width: 10),
                           const Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  'Trợ lý AI Thần Kỳ 🔮',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w900,
-                                    color: Colors.white,
+                                FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    'Trợ lý TimeGenie',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w900,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
-                                SizedBox(height: 4),
-                                Text(
-                                  'Nói hoặc viết lịch trình để AI sắp xếp',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.white70,
-                                    fontWeight: FontWeight.w500,
+                                const SizedBox(height: 4),
+                                FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    'Nói hoặc viết lịch trình để Thần Đèn sắp xếp',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.white70,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -816,6 +833,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               ),
                             ),
                           ),
+                          const SizedBox(width: 8),
+                          IconButton(
+                            icon: const Icon(Icons.close, color: Colors.white),
+                            onPressed: () {
+                              speech.stop();
+                              Navigator.pop(dialogContext);
+                            },
+                          ),
                         ],
                       ),
                     ),
@@ -855,28 +880,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           const SizedBox(height: 24),
                           
                           // Hàng nút hành động
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              TextButton(
-                                onPressed: () {
-                                  speech.stop();
-                                  Navigator.pop(dialogContext);
-                                },
-                                style: TextButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                                ),
-                                child: Text(
-                                  'Hủy bỏ',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: isDark ? Colors.white70 : Colors.grey.shade600,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Container(
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: Container(
                                 decoration: BoxDecoration(
                                   gradient: const LinearGradient(
                                     colors: [Colors.amber, Colors.orangeAccent],
@@ -905,7 +911,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                             imageAssetPath: 'assets/images/appIconLight.jpg',
                                             message: aiResponse.advice.isNotEmpty 
                                                 ? aiResponse.advice 
-                                                : 'AI không tìm thấy công việc nào phù hợp từ mô tả của bạn.',
+                                                : 'TimeGenie không tìm thấy công việc nào phù hợp từ mô tả của bạn.',
                                           );
                                         } else {
                                           _showAIConfirmationDialog(context, viewModel, aiResponse);
@@ -932,7 +938,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                   ),
                                 ),
                               ),
-                            ],
                           )
                         ],
                       ),
@@ -986,17 +991,33 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         ),
                       ),
                       width: double.infinity,
-                      child: const Column(
+                      child: Stack(
+                        clipBehavior: Clip.none,
                         children: [
-                          Icon(Icons.auto_awesome, color: Colors.white, size: 40),
-                          SizedBox(height: 8),
-                          Text(
-                            'Lịch trình đề xuất 🌟',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w900,
-                              color: Colors.white,
+                          const Align(
+                            alignment: Alignment.center,
+                            child: Column(
+                              children: [
+                                Icon(Icons.auto_awesome, color: Colors.white, size: 40),
+                                SizedBox(height: 8),
+                                Text(
+                                  'Lịch trình đề xuất 🌟',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w900,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Positioned(
+                            top: -16,
+                            right: -8,
+                            child: IconButton(
+                              icon: const Icon(Icons.close, color: Colors.white),
+                              onPressed: () => Navigator.pop(context),
                             ),
                           ),
                         ],
@@ -1040,7 +1061,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           ],
 
                           Text(
-                            'Các công việc do AI gợi ý:',
+                            'Các công việc do TimeGenie gợi ý:',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 15,
@@ -1122,25 +1143,20 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               TextButton(
                                 onPressed: () {
                                   Navigator.pop(context);
-                                  FloatingAppIcon.show(
-                                    context,
-                                    imageAssetPath: 'assets/images/appIconLight.jpg',
-                                    message: 'Đã hủy bỏ đề xuất lịch trình. ❌',
-                                  );
                                 },
                                 style: TextButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                 ),
                                 child: Text(
                                   'Hủy bỏ',
                                   style: TextStyle(
                                     color: isDark ? Colors.white70 : Colors.grey.shade600,
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 16,
+                                    fontSize: 14,
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 12),
+                              const SizedBox(width: 8),
                               Container(
                                 decoration: BoxDecoration(
                                   gradient: const LinearGradient(
@@ -1193,20 +1209,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   ],
                 ),
               ),
-            );
-          },
-        );
-      },
-    );
-  }
-}�ồng ý và Thêm',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
             );
           },
         );
