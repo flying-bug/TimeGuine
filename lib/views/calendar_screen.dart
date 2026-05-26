@@ -313,7 +313,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                 Image.asset('assets/images/appIconLight.jpg', height: 120, errorBuilder: (c,e,s) => const Icon(Icons.sentiment_very_satisfied, size: 100, color: Colors.orangeAccent)),
                                 const SizedBox(height: 16),
                                 const Text(
-                                  'Hoan hô! Bé không có bài tập nào hôm nay.',
+                                  'Hoan hô! Bạn không có bài tập nào hôm nay.',
                                   style: TextStyle(color: Colors.blueGrey, fontSize: 18, fontWeight: FontWeight.bold),
                                   textAlign: TextAlign.center,
                                 ),
@@ -403,7 +403,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                         context: context,
                                         builder: (context) => AlertDialog(
                                           title: const Text('Xóa công việc', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.redAccent)),
-                                          content: const Text('Bé có chắc chắn muốn xóa công việc này không?'),
+                                          content: const Text('Bạn có chắc chắn muốn xóa công việc này không?'),
                                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                                           actions: [
                                             TextButton(
@@ -696,7 +696,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                 child: ElevatedButton(
                                   onPressed: () {
                                     if (timeController.text.isEmpty || titleController.text.isEmpty) {
-                                      FloatingAppIcon.show(context, imageAssetPath: 'assets/images/appIconLight.jpg', message: 'Bé nhớ nhập đủ thời gian và tên công việc nhé!');
+                                      FloatingAppIcon.show(context, imageAssetPath: 'assets/images/appIconLight.jpg', message: 'Bạn nhớ nhập đủ thời gian và tên công việc nhé!');
                                       return;
                                     }
                                     viewModel.addTask(

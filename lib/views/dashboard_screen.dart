@@ -48,7 +48,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF0F8FF),
       appBar: AppBar(
-        title: const Text('Bảng Điểm Của Bé', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 24)),
+        title: const Text('Bảng Điểm Của Bạn', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 24)),
         backgroundColor: Colors.orangeAccent,
         elevation: 0,
         centerTitle: true,
@@ -94,8 +94,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 20),
                   Text(
                     total == 0 
-                        ? 'Tuần này bé chưa có nhiệm vụ nào cả!' 
-                        : 'Bé đã hoàn thành ${completionRate.toStringAsFixed(0)}% mục tiêu!',
+                        ? 'Tuần này bạn chưa có nhiệm vụ nào cả!' 
+                        : 'Bạn đã hoàn thành ${completionRate.toStringAsFixed(0)}% mục tiêu!',
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.orange),
                     textAlign: TextAlign.center,
                   ),

@@ -75,11 +75,12 @@ class TaskViewModel extends ChangeNotifier {
     }
 
     // Schedule Notification
-    final scheduleTime = DateTime(date.year, date.month, date.day, hour, minute);
+    final taskTime = DateTime(date.year, date.month, date.day, hour, minute);
+    final scheduleTime = taskTime.subtract(const Duration(minutes: 15));
     NotificationService().scheduleNotification(
       id: newTask.id.hashCode,
       title: 'Nhắc nhở công việc',
-      body: 'Hôm nay bạn có việc: $title',
+      body: 'Còn 15 phút nữa: $title',
       scheduledDate: scheduleTime,
     );
 
@@ -135,11 +136,12 @@ class TaskViewModel extends ChangeNotifier {
           minute = int.tryParse(parts[1]) ?? 0;
         }
 
-        final scheduleTime = DateTime(task.date.year, task.date.month, task.date.day, hour, minute);
+        final taskTime = DateTime(task.date.year, task.date.month, task.date.day, hour, minute);
+        final scheduleTime = taskTime.subtract(const Duration(minutes: 15));
         NotificationService().scheduleNotification(
           id: task.id.hashCode,
           title: 'Lịch trình AI',
-          body: 'Đến giờ cho việc: ${task.title}',
+          body: 'Còn 15 phút nữa: ${task.title}',
           scheduledDate: scheduleTime,
         );
       }
